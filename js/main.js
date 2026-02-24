@@ -254,45 +254,32 @@ function setupModal() {
         const figmaBtn = document.getElementById('modal-link-figma');
 
         if (linkBtn) {
-            if (project.link_project && project.link_project.trim() !== '') {
-                resetBtnStyle(linkBtn, 'ph-globe', 'Ver Projeto');
+            if (project.link_project && project.link_project.trim() !== '' && project.link_project !== '#') {
+                linkBtn.style.display = 'inline-flex';
                 linkBtn.href = project.link_project;
                 linkBtn.target = '_blank';
             } else {
-                setNoLinkStyle(linkBtn, 'Não há link disponível');
+                linkBtn.style.display = 'none';
             }
         }
 
         if (githubBtn) {
-            if (project.link_github && project.link_github.trim() !== '') {
+            if (project.link_github && project.link_github.trim() !== '' && project.link_github !== '#') {
                 githubBtn.style.display = 'inline-flex';
                 githubBtn.href = project.link_github;
                 githubBtn.target = '_blank';
-                githubBtn.style.opacity = '1';
-                githubBtn.style.pointerEvents = 'auto';
             } else {
-                githubBtn.style.display = 'none'; // Esconde se não tiver GitHub
+                githubBtn.style.display = 'none';
             }
         }
 
         if (figmaBtn) {
-            resetBtnStyle(figmaBtn, 'ph-figma-logo', 'Ver Figma');
-
-            if (project.link_figma && project.link_figma.trim() !== '') {
+            if (project.link_figma && project.link_figma.trim() !== '' && project.link_figma !== '#') {
+                figmaBtn.style.display = 'inline-flex';
                 figmaBtn.href = project.link_figma;
                 figmaBtn.target = '_blank';
-                figmaBtn.onclick = null;
-                figmaBtn.style.opacity = '1';
-                figmaBtn.style.cursor = 'pointer';
             } else {
-                figmaBtn.removeAttribute('href');
-                figmaBtn.removeAttribute('target');
-                figmaBtn.style.opacity = '0.7';
-                figmaBtn.style.cursor = 'pointer';
-                figmaBtn.onclick = (e) => {
-                    e.preventDefault();
-                    alert('Não há projeto no Figma disponível para este item.');
-                };
+                figmaBtn.style.display = 'none';
             }
         }
 
