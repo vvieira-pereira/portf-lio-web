@@ -428,52 +428,65 @@ nav {
     /* Remove qualquer fresta no topo */
 }
 
-/* Efeito Plexus de Fios e Luzes (Inspirado na sua foto) */
+/* Grade Diagonal "Tron" Style */
 .project-image-container::before {
     content: '';
     position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    /* Fios cruzados em ângulos para evitar quadrados */
-    background:
-        linear-gradient(45deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(20deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 60px 60px, 80px 80px, 120px 120px;
-    transform: perspective(1000px) rotateX(15deg);
-    animation: drift 40s linear infinite;
+    width: 400%;
+    height: 400%;
+    top: -150%;
+    left: -150%;
+    background-image:
+        linear-gradient(rgba(79, 70, 229, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.15) 1px, transparent 1px);
+    background-size: 45px 45px;
+    transform: perspective(800px) rotateX(60deg) rotateZ(45deg);
+    animation: gridMoveTech 12s linear infinite;
     z-index: 1;
 }
 
-/* Luzes que Piscam e Apagam (Nodes) */
+/* Efeito de Scanline (Feixes de Luz) */
 .project-image-container::after {
     content: '';
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    /* Múltiplos pontos de luz em posições diferentes */
-    background-image:
-        radial-gradient(circle at 10% 20%, white 1.5px, transparent 8px),
-        radial-gradient(circle at 40% 40%, white 2px, transparent 10px),
-        radial-gradient(circle at 70% 20%, white 1.5px, transparent 8px),
-        radial-gradient(circle at 20% 70%, white 2px, transparent 10px),
-        radial-gradient(circle at 80% 80%, white 1.5px, transparent 8px),
-        radial-gradient(circle at 50% 90%, white 2px, transparent 10px);
-    background-size: 100% 100%;
+    background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(79, 70, 229, 0.15) 50%,
+            transparent 100%);
+    background-size: 100% 200%;
+    animation: scanline 4s linear infinite;
     z-index: 2;
-    animation: flicker 6s ease-in-out infinite alternate;
+    pointer-events: none;
 }
 
-/* Brilho Extra no Hover da Foto */
+@keyframes gridMoveTech {
+    0% {
+        transform: perspective(800px) rotateX(60deg) rotateZ(45deg) translateY(0);
+    }
+
+    100% {
+        transform: perspective(800px) rotateX(60deg) rotateZ(45deg) translateY(45px);
+    }
+}
+
+@keyframes scanline {
+    0% {
+        background-position: 0 -100%;
+    }
+
+    100% {
+        background-position: 0 100%;
+    }
+}
+
 .project-card:hover .project-image {
-    transform: scale(1.1);
-}
-
-100% {
-    transform: perspective(1000px) rotateX(20deg) translateY(-20px) scale(1.1);
-}
+    transform: scale(1.1) rotate(3deg);
+    filter: drop-shadow(0 0 25px rgba(79, 70, 229, 0.7));
+    border-color: var(--accent-primary);
 }
 
 @keyframes twinkle {
