@@ -102,7 +102,7 @@ async function loadHero() {
 
     // 1. Dados Padrão (Fallback)
     const defaultHero = {
-        title: 'Transformando ideias em <br> <span class="gradient-text typing-effect">Experiências Digitais</span>',
+        title: 'Transformando<br>ideias em<br><span class="gradient-text typing-effect">Experiências Digitais</span>',
         subtitle: 'Olá, sou Vinicius Vieira. Desenvolvedor apaixonado por criar soluções web modernas e impactantes.',
         photoUrl: 'https://placehold.co/400x400/222/FFF?text=Foto+Vinicius'
     };

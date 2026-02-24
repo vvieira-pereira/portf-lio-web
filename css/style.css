@@ -361,10 +361,10 @@ nav {
 
 /* Typing Effect Cursor */
 .typing-effect {
+    display: inline-block;
     border-right: 3px solid var(--accent-secondary);
-    white-space: nowrap;
-    overflow: hidden;
     animation: blink 0.75s step-end infinite;
+    padding-right: 2px;
 }
 
 @keyframes blink {
@@ -811,11 +811,10 @@ nav {
     }
 
     .typing-effect {
+        display: inline-block;
+        border-right: 3px solid var(--accent-secondary) !important;
+        animation: blink 0.75s step-end infinite !important;
         white-space: normal;
-        /* Permite quebrar linha no mobile para não dar zoom/scroll lateral */
-        border-right: none;
-        /* Remove o cursor se quebrar linha fica estranho */
-        animation: none;
     }
 
     /* Ajuste para telas muito estreitas (tipo Galaxy M14 / iPhone SE) */
