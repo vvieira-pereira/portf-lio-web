@@ -47,13 +47,13 @@
             btn.disabled = true;
             btn.innerText = "Verificando...";
 
-            const success = await window.Auth.login(user, pass);
+            const response = await window.Auth.login(user, pass);
 
-            if (success) {
+            if (response === true) {
                 window.location.href = 'admin.html';
             } else {
                 document.getElementById('error-msg').style.display = 'block';
-                document.getElementById('error-msg').innerText = "Email ou senha incorretos lá no Supabase!";
+                document.getElementById('error-msg').innerText = "Erro: " + response; // Mostra o erro real (ex: Email not confirmed)
                 btn.disabled = false;
                 btn.innerText = "Entrar";
             }

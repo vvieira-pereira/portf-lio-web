@@ -8,7 +8,7 @@ window.Auth = {
 
         if (error) {
             console.error('Erro no login:', error.message);
-            return false;
+            return error.message; // Retorna a mensagem real (ex: Invalid login credentials)
         }
 
         // Sessão é salva automaticamente no browser pelo SDK
