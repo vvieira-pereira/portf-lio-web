@@ -129,7 +129,9 @@ async function loadProjects() {
 
     projectsContainer.innerHTML = projects.map((project, index) => `
         <div class="project-card" onclick="window.openProjectModal(${index})">
-            <img src="${project.image_url}" alt="${project.title}" class="project-image">
+            <div class="project-image-container">
+                <img src="${project.image_url}" alt="${project.title}" class="project-image">
+            </div>
             <div class="project-info">
                 <h3 class="project-title">${project.title}</h3>
                 <p class="project-desc">${project.description}</p>
