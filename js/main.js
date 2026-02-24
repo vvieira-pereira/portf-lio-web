@@ -1,48 +1,5 @@
-// Default Data
-const defaultProjects = [
-    {
-        id: 1,
-        title: "E-commerce Moderno",
-        desc: "Plataforma completa de vendas com React e Stripe. Inclui carrinho, checkout e painel administrativo.",
-        specs: "React, Node.js, Stripe, TailwindCSS",
-        linkProject: "https://google.com",
-        linkFigma: "https://figma.com",
-        image: "https://placehold.co/600x400/1a1a1a/FFF?text=E-commerce",
-        gallery: [
-            "https://placehold.co/600x400/222/FFF?text=Dashboard",
-            "https://placehold.co/600x400/222/FFF?text=Mobile+View"
-        ]
-    },
-    {
-        id: 2,
-        title: "App de Gestão",
-        desc: "Dashboard interativo para controle de gastos pessoais com gráficos em tempo real.",
-        specs: "Vue.js, Chart.js, Firebase",
-        linkProject: "#",
-        linkFigma: "#",
-        image: "https://placehold.co/600x400/1a1a1a/FFF?text=Financas",
-        gallery: []
-    }
-];
-
-// Initialize Data if empty
-if (!localStorage.getItem('portfolio_projects')) {
-    localStorage.setItem('portfolio_projects', JSON.stringify(defaultProjects));
-}
-
-if (!localStorage.getItem('portfolio_hero')) {
-    localStorage.setItem('portfolio_hero', JSON.stringify({
-        title: 'Transformando ideias em <br> <span class="gradient-text typing-effect">Experiências Digitais</span>',
-        subtitle: 'Olá, sou Vinicius Vieira. Desenvolvedor apaixonado por criar soluções web modernas e impactantes.',
-        photoUrl: 'https://placehold.co/400x400/222/FFF?text=Foto+Vinicius'
-    }));
-}
-
 // Load Content
 document.addEventListener('DOMContentLoaded', () => {
-    loadBrand();
-    loadTexts();
-    loadHero();
     loadProjects();
     setupModal();
     setupLightbox();
@@ -50,21 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Menu Hamburguer com delegação para garantir funcionamento
     setupMobileMenu();
 });
-
-function loadTexts() {
-    const texts = JSON.parse(localStorage.getItem('portfolio_texts')) || {};
-
-    if (texts.aboutTitle) document.getElementById('about-title').innerText = texts.aboutTitle;
-    if (texts.aboutDesc) document.getElementById('about-desc').innerText = texts.aboutDesc;
-    if (texts.projectsTitle) document.getElementById('projects-title').innerText = texts.projectsTitle;
-    if (texts.contactTitle) document.getElementById('contact-title').innerText = texts.contactTitle;
-}
-
-function loadBrand() {
-    const brand = localStorage.getItem('portfolio_brand') || 'Vinicius<span class="gradient-text">Vieira</span>';
-    const logoEl = document.getElementById('brand-logo');
-    if (logoEl) logoEl.innerHTML = brand;
-}
 
 function setupMobileMenu() {
     const btn = document.getElementById('mobile-menu-btn');
@@ -92,58 +34,6 @@ function setupMobileMenu() {
                 icon.classList.replace('ph-x', 'ph-list');
             });
         });
-    }
-}
-
-async function loadHero() {
-    const titleEl = document.getElementById('editable-hero-title');
-    const subtitleEl = document.getElementById('editable-hero-subtitle');
-    const photoEl = document.getElementById('editable-hero-photo');
-
-    // 1. Dados Padrão (Fallback)
-    const defaultHero = {
-        title: 'Transformando<br>ideias em<br><span class="gradient-text typing-effect">Experiências Digitais</span>',
-        subtitle: 'Olá, sou Vinicius Vieira. Desenvolvedor apaixonado por criar soluções web modernas e impactantes.',
-        photoUrl: 'https://placehold.co/400x400/222/FFF?text=Foto+Vinicius'
-    };
-
-    // 2. Tenta carregar do LocalStorage (Cache)
-    const cachedHero = JSON.parse(localStorage.getItem('portfolio_hero')) || defaultHero;
-
-    // Renderiza o que tiver (Padrão ou Cache)
-    if (titleEl) titleEl.innerHTML = cachedHero.title || defaultHero.title;
-    if (subtitleEl) subtitleEl.innerText = cachedHero.subtitle || defaultHero.subtitle;
-    if (photoEl) photoEl.src = cachedHero.photoUrl || defaultHero.photoUrl;
-
-    // 3. Busca do Supabase (Sincronização em tempo real)
-    if (window.supabaseClient) {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('hero_section')
-                .select('*')
-                .eq('id', 1)
-                .single();
-
-            if (data && !error) {
-                // SÓ atualiza se o conteúdo no banco for REAL (diferente do teste 'Bem-vindo')
-                const isRealData = data.title && data.title !== 'Bem-vindo' && data.title !== '';
-
-                if (isRealData) {
-                    if (titleEl) titleEl.innerHTML = data.title;
-                    if (data.subtitle && subtitleEl) subtitleEl.innerText = data.subtitle;
-                    if (data.photo_url && photoEl) photoEl.src = data.photo_url;
-
-                    // Atualiza o cache só com dados reais
-                    localStorage.setItem('portfolio_hero', JSON.stringify({
-                        title: data.title,
-                        subtitle: data.subtitle,
-                        photoUrl: data.photo_url
-                    }));
-                }
-            }
-        } catch (e) {
-            console.warn("Hero: Falha ao sincronizar com Supabase, usando local.");
-        }
     }
 }
 
