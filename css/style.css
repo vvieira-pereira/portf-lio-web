@@ -428,7 +428,7 @@ nav {
     /* Remove qualquer fresta no topo */
 }
 
-/* Novo Fundo Plexus Tech (Rede de Conexões) */
+/* Efeito Plexus de Fios e Luzes (Inspirado na sua foto) */
 .project-image-container::before {
     content: '';
     position: absolute;
@@ -436,53 +436,44 @@ nav {
     height: 200%;
     top: -50%;
     left: -50%;
-    /* Criando a rede de linhas e pontos via gradiente e padrões */
-    background-image:
-        radial-gradient(circle at 20% 30%, white 1px, transparent 1px),
-        radial-gradient(circle at 50% 10%, white 1.5px, transparent 1.5px),
-        radial-gradient(circle at 80% 40%, white 1px, transparent 1px),
-        radial-gradient(circle at 30% 70%, white 1px, transparent 1px),
-        radial-gradient(circle at 70% 80%, white 1.5px, transparent 1.5px),
-        /* Linhas da rede */
-        repeating-linear-gradient(rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 40px),
-        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 40px);
-    background-size: 100px 100px;
-    transform: perspective(1000px) rotateX(20deg);
-    animation: plexusMove 30s ease-in-out infinite alternate;
+    /* Fios cruzados em ângulos para evitar quadrados */
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(20deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px, 80px 80px, 120px 120px;
+    transform: perspective(1000px) rotateX(15deg);
+    animation: drift 40s linear infinite;
     z-index: 1;
 }
 
-/* Luzes Cintilantes (Twinkling Nodes) */
+/* Luzes que Piscam e Apagam (Nodes) */
 .project-image-container::after {
     content: '';
     position: absolute;
     width: 100%;
     height: 100%;
+    /* Múltiplos pontos de luz em posições diferentes */
     background-image:
-        radial-gradient(circle at 25% 35%, white 2px, transparent 10px),
-        radial-gradient(circle at 65% 15%, white 2px, transparent 10px),
-        radial-gradient(circle at 85% 75%, white 2px, transparent 10px);
-    background-size: 200% 200%;
-    animation: twinkle 4s ease-in-out infinite;
+        radial-gradient(circle at 10% 20%, white 1.5px, transparent 8px),
+        radial-gradient(circle at 40% 40%, white 2px, transparent 10px),
+        radial-gradient(circle at 70% 20%, white 1.5px, transparent 8px),
+        radial-gradient(circle at 20% 70%, white 2px, transparent 10px),
+        radial-gradient(circle at 80% 80%, white 1.5px, transparent 8px),
+        radial-gradient(circle at 50% 90%, white 2px, transparent 10px);
+    background-size: 100% 100%;
     z-index: 2;
-    opacity: 0.3;
+    animation: flicker 6s ease-in-out infinite alternate;
 }
 
 /* Brilho Extra no Hover da Foto */
 .project-card:hover .project-image {
     transform: scale(1.1);
-    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.4));
-    border-color: white;
 }
 
-@keyframes plexusMove {
-    0% {
-        transform: perspective(1000px) rotateX(20deg) translateY(0) scale(1.0);
-    }
-
-    100% {
-        transform: perspective(1000px) rotateX(20deg) translateY(-20px) scale(1.1);
-    }
+100% {
+    transform: perspective(1000px) rotateX(20deg) translateY(-20px) scale(1.1);
+}
 }
 
 @keyframes twinkle {
