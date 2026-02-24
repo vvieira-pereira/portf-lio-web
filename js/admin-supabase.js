@@ -10,8 +10,8 @@ async function uploadFile(file, path) {
 
     // Nome único para o arquivo
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `${path}/${fileName}`;
+    const fileName = `${path}_${Date.now()}.${fileExt}`;
+    const filePath = fileName; // Simplifica o caminho para evitar erro de pasta inexistente
 
     const { data, error } = await window.supabaseClient.storage
         .from(bucketName)

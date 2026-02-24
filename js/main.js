@@ -250,6 +250,7 @@ function setupModal() {
 
         // Links
         const linkBtn = document.getElementById('modal-link-project');
+        const githubBtn = document.getElementById('modal-link-github');
         const figmaBtn = document.getElementById('modal-link-figma');
 
         if (linkBtn) {
@@ -259,6 +260,18 @@ function setupModal() {
                 linkBtn.target = '_blank';
             } else {
                 setNoLinkStyle(linkBtn, 'Não há link disponível');
+            }
+        }
+
+        if (githubBtn) {
+            if (project.link_github && project.link_github.trim() !== '') {
+                githubBtn.style.display = 'inline-flex';
+                githubBtn.href = project.link_github;
+                githubBtn.target = '_blank';
+                githubBtn.style.opacity = '1';
+                githubBtn.style.pointerEvents = 'auto';
+            } else {
+                githubBtn.style.display = 'none'; // Esconde se não tiver GitHub
             }
         }
 

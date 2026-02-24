@@ -155,10 +155,14 @@
                     <label>Tecnologias</label>
                     <input type="text" id="proj-specs" class="input-field" placeholder="React, Node, etc...">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div class="input-group">
                         <label>Link do Projeto</label>
                         <input type="text" id="proj-link" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label>Link do GitHub</label>
+                        <input type="text" id="proj-github" class="input-field">
                     </div>
                     <div class="input-group">
                         <label>Link do Figma</label>
@@ -333,6 +337,7 @@
             document.getElementById('proj-desc').value = p.description;
             document.getElementById('proj-specs').value = p.specs;
             document.getElementById('proj-link').value = p.link_project || '';
+            document.getElementById('proj-github').value = p.link_github || '';
             document.getElementById('proj-figma').value = p.link_figma || '';
 
             // Capa Atual
@@ -411,6 +416,7 @@
                     description: document.getElementById('proj-desc').value,
                     specs: document.getElementById('proj-specs').value,
                     link_project: document.getElementById('proj-link').value,
+                    link_github: document.getElementById('proj-github').value,
                     link_figma: document.getElementById('proj-figma').value,
                     image_url: imageUrl,
                     gallery: finalGallery,
