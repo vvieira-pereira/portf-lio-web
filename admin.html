@@ -251,12 +251,57 @@
         });
 
         // --- BRAND & HERO ---
+        const loadHeroData = () => {
+            const hero = JSON.parse(localStorage.getItem('portfolio_hero')) || {};
+            document.getElementById('hero-title-input').value = hero.title || 'Seu Nome';
+            document.getElementById('hero-subtitle-input').value = hero.subtitle || 'Sua Profissão';
+            document.getElementById('hero-photo-url').value = hero.photoUrl || '';
+
+            if (hero.photoUrl) {
+                document.getElementById('current-hero-photo-status').innerText = "Foto atual carregada.";
+            }
+        };
+        loadHeroData();
+
         const brandName = localStorage.getItem('portfolio_brand') || 'Vinicius<span class="gradient-text">Vieira</span>';
         document.getElementById('brand-input').value = brandName;
 
         document.getElementById('save-brand-btn').addEventListener('click', () => {
             localStorage.setItem('portfolio_brand', document.getElementById('brand-input').value);
             alert('Nome da marca atualizado!');
+        });
+
+        // SALVAR HERO (Aqui corrigimos o seu botão!)
+        document.getElementById('save-hero-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('save-hero-btn');
+            const photoFile = document.getElementById('hero-photo-file').files[0];
+            let photoUrl = document.getElementById('hero-photo-url').value;
+
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
+            try {
+                if (photoFile) {
+                    console.log("Fazendo upload da foto de perfil...");
+                    photoUrl = await window.uploadFile(photoFile, 'profile');
+                }
+
+                const heroData = {
+                    title: document.getElementById('hero-title-input').value,
+                    subtitle: document.getElementById('hero-subtitle-input').value,
+                    photoUrl: photoUrl
+                };
+
+                localStorage.setItem('portfolio_hero', JSON.stringify(heroData));
+                document.getElementById('hero-photo-url').value = photoUrl;
+                alert('Hero Section atualizado com sucesso!');
+            } catch (error) {
+                console.error("Erro no Hero:", error);
+                alert("Erro ao salvar Hero: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar Alterações";
+            }
         });
 
         // --- PROJECTS LOGIC ---
@@ -268,7 +313,7 @@
             div.style = 'position: relative; width: 60px; height: 60px;';
             div.innerHTML = `
                 <img src="${src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #555;">
-                <button onclick="this.parentElement.remove()" style="position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">&times;</button>
+                <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">&times;</button>
             `;
             document.getElementById(containerId).appendChild(div);
         };
@@ -325,13 +370,13 @@
             e.preventDefault();
             const btn = document.getElementById('submit-project-btn');
             btn.disabled = true;
-            btn.innerText = "Enviando para o Banco...";
+            btn.innerText = "Enviando...";
 
             try {
                 const id = document.getElementById('editing-project-id').value;
                 const isEdit = id !== '';
 
-                // 1. Upload da Capa (se houver novo arquivo)
+                // 1. Upload da Capa
                 const coverFile = document.getElementById('proj-img-file').files[0];
                 let imageUrl = isEdit ? document.getElementById('current-cover-img').src : null;
 
@@ -341,27 +386,26 @@
 
                 if (!imageUrl) throw new Error("A imagem de capa é obrigatória.");
 
-                // 2. Upload da Galeria (se houver novos arquivos)
+                // 2. Galerias
                 const galleryFiles = document.getElementById('proj-gallery-files').files;
                 const newGalleryUrls = [];
                 for (let file of galleryFiles) {
-                    newGalleryUrls.push(await window.uploadFile(file, 'gallery'));
+                    const url = await window.uploadFile(file, 'gallery');
+                    if (url) newGalleryUrls.push(url);
                 }
-
                 const existingGallery = Array.from(document.querySelectorAll('#current-gallery-container img')).map(img => img.src);
                 const finalGallery = [...existingGallery, ...newGalleryUrls];
 
-                // 3. Upload da Galeria Figma
                 const figmaFiles = document.getElementById('proj-figma-files').files;
                 const newFigmaUrls = [];
                 for (let file of figmaFiles) {
-                    newFigmaUrls.push(await window.uploadFile(file, 'figma'));
+                    const url = await window.uploadFile(file, 'figma');
+                    if (url) newFigmaUrls.push(url);
                 }
-
                 const existingFigma = Array.from(document.querySelectorAll('#current-figma-container img')).map(img => img.src);
                 const finalFigma = [...existingFigma, ...newFigmaUrls];
 
-                // 4. Salvar no Banco
+                // 3. Montar Objeto
                 const projectData = {
                     title: document.getElementById('proj-title').value,
                     description: document.getElementById('proj-desc').value,
@@ -373,25 +417,33 @@
                     gallery_figma: finalFigma
                 };
 
-                let res;
+                // 4. Salvar no Supabase com Verificação
+                console.log("Tentando salvar no banco:", projectData);
+
+                let error;
                 if (isEdit) {
-                    res = await window.supabaseClient.from('projects').update(projectData).eq('id', id);
+                    const res = await window.supabaseClient.from('projects').update(projectData).eq('id', id);
+                    error = res.error;
                 } else {
-                    res = await window.supabaseClient.from('projects').insert([projectData]);
+                    const res = await window.supabaseClient.from('projects').insert([projectData]);
+                    error = res.error;
                 }
 
-                if (res.error) throw res.error;
+                if (error) {
+                    console.error("Erro do Supabase:", error);
+                    throw new Error("Erro do Banco: " + error.message);
+                }
 
                 alert(isEdit ? 'Projeto atualizado!' : 'Projeto criado!');
                 resetProjectForm();
                 window.renderAdminProjects();
 
             } catch (err) {
-                console.error(err);
-                alert('Erro ao salvar: ' + err.message);
+                console.error("Catched Error:", err);
+                alert('Erro: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = isEdit ? "Salvar Alterações" : "Adicionar Projeto";
+                btn.innerText = (document.getElementById('editing-project-id').value !== '') ? "Salvar Alterações" : "Adicionar Projeto";
             }
         });
 
