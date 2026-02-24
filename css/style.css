@@ -362,22 +362,40 @@ nav {
 /* Typing Effect Cursor */
 .typing-effect {
     display: inline-block;
-    border-right: 3px solid var(--accent-secondary);
-    animation: blink 0.75s step-end infinite;
-    padding-right: 2px;
+    position: relative;
+    padding-right: 8px;
+    /* Espaço para o cursor */
+    white-space: nowrap;
+    /* Garante Experiências Digitais na mesma linha */
 }
 
-@keyframes blink {
+.typing-effect::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 55%;
+    /* Ajuste fino para alinhar com a base das letras */
+    transform: translateY(-50%);
+    width: 2px;
+    height: 0.7em;
+    /* Altura da letra S */
+    background-color: var(--accent-secondary);
+    animation: blink-cursor 0.75s step-end infinite;
+}
+
+@keyframes blink-cursor {
 
     from,
     to {
-        border-color: transparent
+        opacity: 1;
     }
 
     50% {
-        border-color: var(--accent-secondary)
+        opacity: 0;
     }
 }
+
+
 
 .hero-subtitle {
     font-size: 1.25rem;
@@ -812,9 +830,13 @@ nav {
 
     .typing-effect {
         display: inline-block;
-        border-right: 3px solid var(--accent-secondary) !important;
-        animation: blink 0.75s step-end infinite !important;
-        white-space: normal;
+        white-space: nowrap;
+        /* Mantém na mesma linha no mobile também */
+    }
+
+    .typing-effect::after {
+        display: block !important;
+        /* Garante que o cursor apareça */
     }
 
     /* Ajuste para telas muito estreitas (tipo Galaxy M14 / iPhone SE) */
