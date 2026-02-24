@@ -397,91 +397,106 @@ nav {
 }
 
 .project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--glass-shadow);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-10px);
+    border-color: rgba(79, 70, 229, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(79, 70, 229, 0.2);
 }
 
 .project-image {
-    width: 60%;
-    height: 150px;
+    width: 140px;
+    /* Tamanho fixo para garantir o círculo perfeito */
+    height: 140px;
     object-fit: contain;
-    border-radius: 30px;
-    /* Bordas bem mais arredondadas como pedido */
+    border-radius: 80px;
+    /* SUPER ARREDONDADO */
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
-    z-index: 3;
-    pointer-events: none;
-    /* Evita interferir no clique do card */
+    filter: drop-shadow(0 0 15px rgba(79, 70, 229, 0.3));
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .project-image-container {
-    height: 190px;
+    height: 220px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    background: #08080a;
+    background: #050507;
+    margin-top: -1px;
+    /* Remove qualquer fresta no topo */
 }
 
-/* Grade Diagonal Real (Inclinada 45 graus) */
+/* Grade Diagonal Ajustada para o Topo */
 .project-image-container::before {
     content: '';
     position: absolute;
-    width: 300%;
-    height: 300%;
-    top: -100%;
-    left: -100%;
+    width: 400%;
+    height: 400%;
+    top: -150%;
+    /* Puxado mais para cima para cobrir tudo */
+    left: -150%;
     background-image:
-        linear-gradient(rgba(79, 70, 229, 0.2) 1.5px, transparent 1.5px),
-        linear-gradient(90deg, rgba(79, 70, 229, 0.2) 1.5px, transparent 1.5px);
-    background-size: 50px 50px;
-    /* Aqui está o segredo: perspectiva + rotação X e Z para a diagonal tech */
-    transform: perspective(1000px) rotateX(60deg) rotateZ(45deg);
-    animation: gridMoveTech 20s linear infinite;
+        linear-gradient(rgba(79, 70, 229, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: perspective(800px) rotateX(60deg) rotateZ(45deg);
+    animation: gridMoveTech 15s linear infinite;
     z-index: 1;
-    opacity: 0.6;
 }
 
-/* Brilho de Fundo Dinâmico */
+/* Efeito de Fios de Luz (Data Streams) */
 .project-image-container::after {
     content: '';
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+    background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(79, 70, 229, 0.2) 50%,
+            transparent 100%);
+    background-size: 100% 200%;
+    animation: scanline 3s linear infinite;
     z-index: 2;
-    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+/* Brilho Extra no Hover da Foto */
+.project-card:hover .project-image {
+    transform: scale(1.1) rotate(5deg);
+    border-color: var(--accent-primary);
+    filter: drop-shadow(0 0 25px rgba(79, 70, 229, 0.8));
+}
+
+@keyframes scanline {
+    0% {
+        background-position: 0 -100%;
+    }
+
+    100% {
+        background-position: 0 100%;
+    }
 }
 
 @keyframes gridMoveTech {
     0% {
-        transform: perspective(1000px) rotateX(60deg) rotateZ(45deg) translateY(0);
+        transform: perspective(800px) rotateX(60deg) rotateZ(45deg) translateY(0);
     }
 
     100% {
-        transform: perspective(1000px) rotateX(60deg) rotateZ(45deg) translateY(50px);
+        transform: perspective(800px) rotateX(60deg) rotateZ(45deg) translateY(40px);
     }
-}
-
-/* HOVER COM COR E BRILHO */
-.project-card:hover .project-image {
-    transform: scale(1.15) translateY(-5px);
-    filter: drop-shadow(0 0 20px rgba(79, 70, 229, 0.6));
-    /* Brilho azul no hover */
-}
-
-.project-card:hover .project-image-container::after {
-    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
 }
 
 .project-info {
     padding: 24px;
-    background: #111;
+    background: #0d0d10;
     position: relative;
-    z-index: 4;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 6;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .project-title {
