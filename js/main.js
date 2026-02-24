@@ -125,17 +125,21 @@ async function loadHero() {
                 .single();
 
             if (data && !error) {
-                // Só atualiza se houver conteúdo real no banco
-                if (data.title && titleEl) titleEl.innerHTML = data.title;
-                if (data.subtitle && subtitleEl) subtitleEl.innerText = data.subtitle;
-                if (data.photo_url && photoEl) photoEl.src = data.photo_url;
+                // SÓ atualiza se o conteúdo no banco for REAL (diferente do teste 'Bem-vindo')
+                const isRealData = data.title && data.title !== 'Bem-vindo' && data.title !== '';
 
-                // Atualiza o cache para a próxima visita ser rápida
-                localStorage.setItem('portfolio_hero', JSON.stringify({
-                    title: data.title || cachedHero.title,
-                    subtitle: data.subtitle || cachedHero.subtitle,
-                    photoUrl: data.photo_url || cachedHero.photoUrl
-                }));
+                if (isRealData) {
+                    if (titleEl) titleEl.innerHTML = data.title;
+                    if (data.subtitle && subtitleEl) subtitleEl.innerText = data.subtitle;
+                    if (data.photo_url && photoEl) photoEl.src = data.photo_url;
+
+                    // Atualiza o cache só com dados reais
+                    localStorage.setItem('portfolio_hero', JSON.stringify({
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        photoUrl: data.photo_url
+                    }));
+                }
             }
         } catch (e) {
             console.warn("Hero: Falha ao sincronizar com Supabase, usando local.");
