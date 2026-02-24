@@ -104,18 +104,35 @@ function loadHero() {
     if (photoEl && heroData.photoUrl) photoEl.src = heroData.photoUrl;
 }
 
-function loadProjects() {
+async function loadProjects() {
     const projectsContainer = document.getElementById('projects-container');
     if (!projectsContainer) return;
 
-    const projects = JSON.parse(localStorage.getItem('portfolio_projects')) || [];
+    // Busca do Supabase
+    const { data: projects, error } = await window.supabaseClient
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Erro ao buscar projetos:', error);
+        return;
+    }
+
+    if (!projects || projects.length === 0) {
+        projectsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">Nenhum projeto encontrado.</p>';
+        return;
+    }
+
+    // Armazena no window para o modal usar sem carregar de novo
+    window.allProjects = projects;
 
     projectsContainer.innerHTML = projects.map((project, index) => `
         <div class="project-card" onclick="window.openProjectModal(${index})">
-            <img src="${project.image}" alt="${project.title}" class="project-image">
+            <img src="${project.image_url}" alt="${project.title}" class="project-image">
             <div class="project-info">
                 <h3 class="project-title">${project.title}</h3>
-                <p class="project-desc">${project.desc}</p>
+                <p class="project-desc">${project.description}</p>
                 <span style="font-size: 0.8rem; color: var(--accent-secondary);">Clique para ver mais</span>
             </div>
         </div>
@@ -179,37 +196,14 @@ function setupModal() {
     // Open Logic
     // Open Logic
     window.openProjectModal = (index) => {
-        const projects = JSON.parse(localStorage.getItem('portfolio_projects')) || [];
-        const project = projects[index];
+        const project = window.allProjects ? window.allProjects[index] : null;
         if (!project) return;
 
-        // Populate Data - Correct ID: modal-cover
-        const cover = document.getElementById('modal-cover');
-        if (cover) cover.src = project.image;
-
-        const title = document.getElementById('modal-title');
-        if (title) title.innerText = project.title;
-
-        const desc = document.getElementById('modal-desc');
-        if (desc) desc.innerText = project.desc;
-
-        // Specs
-        const specsContainer = document.getElementById('modal-specs');
-        if (specsContainer) {
-            specsContainer.innerHTML = project.specs
-                ? project.specs.split(',').map(tech => `<span class="spec-tag">${tech.trim()}</span>`).join('')
-                : '';
-        }
-
-        // Links - Correct IDs: modal-link-project, modal-link-figma
-        const linkBtn = document.getElementById('modal-link-project');
-        const figmaBtn = document.getElementById('modal-link-figma');
-
-        // Helper to reset button style
+        // Helpers de Estilo
         const resetBtnStyle = (btn, iconClass, text) => {
             btn.style.display = 'inline-flex';
-            btn.className = 'btn btn-primary'; // Default for project
-            if (iconClass.includes('figma')) btn.className = 'btn btn-outline'; // Default for figma
+            btn.className = 'btn btn-primary';
+            if (iconClass.includes('figma')) btn.className = 'btn btn-outline';
             btn.innerHTML = `<i class="ph ${iconClass}"></i> ${text}`;
             btn.style.pointerEvents = 'auto';
             btn.style.background = '';
@@ -221,7 +215,6 @@ function setupModal() {
             btn.style.padding = '';
         };
 
-        // Helper to set "No Link" style
         const setNoLinkStyle = (btn, text) => {
             btn.style.display = 'inline-flex';
             btn.removeAttribute('href');
@@ -237,10 +230,32 @@ function setupModal() {
             btn.style.padding = '10px 0';
         };
 
+        // Populate Data
+        const cover = document.getElementById('modal-cover');
+        if (cover) cover.src = project.image_url;
+
+        const title = document.getElementById('modal-title');
+        if (title) title.innerText = project.title;
+
+        const desc = document.getElementById('modal-desc');
+        if (desc) desc.innerText = project.description;
+
+        // Specs
+        const specsContainer = document.getElementById('modal-specs');
+        if (specsContainer) {
+            specsContainer.innerHTML = project.specs
+                ? project.specs.split(',').map(tech => `<span class="spec-tag">${tech.trim()}</span>`).join('')
+                : '';
+        }
+
+        // Links
+        const linkBtn = document.getElementById('modal-link-project');
+        const figmaBtn = document.getElementById('modal-link-figma');
+
         if (linkBtn) {
-            if (project.linkProject && project.linkProject.trim() !== '') {
+            if (project.link_project && project.link_project.trim() !== '') {
                 resetBtnStyle(linkBtn, 'ph-globe', 'Ver Projeto');
-                linkBtn.href = project.linkProject;
+                linkBtn.href = project.link_project;
                 linkBtn.target = '_blank';
             } else {
                 setNoLinkStyle(linkBtn, 'Não há link disponível');
@@ -248,21 +263,18 @@ function setupModal() {
         }
 
         if (figmaBtn) {
-            // Always show button style
             resetBtnStyle(figmaBtn, 'ph-figma-logo', 'Ver Figma');
 
-            if (project.linkFigma && project.linkFigma.trim() !== '') {
-                // Has link
-                figmaBtn.href = project.linkFigma;
+            if (project.link_figma && project.link_figma.trim() !== '') {
+                figmaBtn.href = project.link_figma;
                 figmaBtn.target = '_blank';
-                figmaBtn.onclick = null; // Clear previous handlers
+                figmaBtn.onclick = null;
                 figmaBtn.style.opacity = '1';
                 figmaBtn.style.cursor = 'pointer';
             } else {
-                // No link
                 figmaBtn.removeAttribute('href');
                 figmaBtn.removeAttribute('target');
-                figmaBtn.style.opacity = '0.7'; // Slightly dimmer to indicate difference? Or keep same. User asked for "button back".
+                figmaBtn.style.opacity = '0.7';
                 figmaBtn.style.cursor = 'pointer';
                 figmaBtn.onclick = (e) => {
                     e.preventDefault();
@@ -271,7 +283,7 @@ function setupModal() {
             }
         }
 
-        // Gallery Rendering - Correct ID: modal-gallery
+        // Gallery Rendering
         const galleryGrid = document.getElementById('modal-gallery');
         if (galleryGrid) {
             let htmlContent = '';
@@ -285,9 +297,9 @@ function setupModal() {
             }
 
             // Figma Gallery
-            if (project.galleryFigma && project.galleryFigma.length > 0) {
+            if (project.gallery_figma && project.gallery_figma.length > 0) {
                 htmlContent += `<h3 style="margin: 30px 0 10px; font-size: 1.1rem; color: #ea580c; width: 100%;">Galeria Design / Figma</h3>`;
-                htmlContent += project.galleryFigma.map(img =>
+                htmlContent += project.gallery_figma.map(img =>
                     `<img src="${img}" class="gallery-img" style="border-color: #ea580c;" onclick="window.openLightbox(this.src)">`
                 ).join('');
             }

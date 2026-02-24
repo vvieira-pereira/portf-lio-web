@@ -218,35 +218,16 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/admin-supabase.js"></script>
     <script src="js/auth.js"></script>
     <script>
         // Auth Check
         window.Auth.checkAuth();
         document.getElementById('logout-btn').addEventListener('click', window.Auth.logout);
 
-        // Change Password
-        document.getElementById('change-pass-btn').addEventListener('click', () => {
-            const newPass = document.getElementById('new-password').value;
-            if (newPass && newPass.length >= 4) {
-                window.Auth.changePassword(newPass);
-                alert('Senha alterada com sucesso!');
-                document.getElementById('new-password').value = '';
-            } else {
-                alert('A senha deve ter pelo menos 4 caracteres.');
-            }
-        });
-
-        // Helper to read file
-        const readFileAsBase64 = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
-        };
-
-        // --- GLOBAL TEXTS ---
+        // --- GLOBAL TEXTS (Ainda no localStorage por enquanto ou pode mover pro banco depois) ---
         const loadTexts = () => {
             const texts = JSON.parse(localStorage.getItem('portfolio_texts')) || {};
             document.getElementById('text-about-title').value = texts.aboutTitle || '';
@@ -259,11 +240,11 @@
 
         document.getElementById('save-texts-btn').addEventListener('click', () => {
             const texts = {
-                aboutTitle: document.getElementById('text-about-title').value || 'Sobre Mim',
-                aboutDesc: document.getElementById('text-about-desc').value || 'Sou um desenvolvedor apaixonado por criar experiências web modernas e intuitivas.',
-                projectsTitle: document.getElementById('text-projects-title').value || 'Meus Projetos',
-                contactTitle: document.getElementById('text-contact-title').value || 'Vamos Trabalhar Juntos?',
-                skills: document.getElementById('text-skills').value || 'HTML5, CSS3, JavaScript, React, Node.js, Git'
+                aboutTitle: document.getElementById('text-about-title').value,
+                aboutDesc: document.getElementById('text-about-desc').value,
+                projectsTitle: document.getElementById('text-projects-title').value,
+                contactTitle: document.getElementById('text-contact-title').value,
+                skills: document.getElementById('text-skills').value
             };
             localStorage.setItem('portfolio_texts', JSON.stringify(texts));
             alert('Textos e Habilidades atualizados!');
@@ -274,281 +255,148 @@
         document.getElementById('brand-input').value = brandName;
 
         document.getElementById('save-brand-btn').addEventListener('click', () => {
-            const newBrand = document.getElementById('brand-input').value;
-            localStorage.setItem('portfolio_brand', newBrand);
+            localStorage.setItem('portfolio_brand', document.getElementById('brand-input').value);
             alert('Nome da marca atualizado!');
         });
 
-        const heroData = JSON.parse(localStorage.getItem('portfolio_hero')) || {};
-        document.getElementById('hero-title-input').value = heroData.title || '';
-        document.getElementById('hero-subtitle-input').value = heroData.subtitle || '';
-        document.getElementById('hero-photo-url').value = heroData.photoUrl || '';
-        if (heroData.photoUrl) {
-            document.getElementById('current-hero-photo-status').innerText = "Foto atual carregada.";
-        }
+        // --- PROJECTS LOGIC ---
 
-        document.getElementById('save-hero-btn').addEventListener('click', async () => {
-            const photoFile = document.getElementById('hero-photo-file').files[0];
-            let photoUrl = document.getElementById('hero-photo-url').value;
-
-            if (photoFile) {
-                try {
-                    photoUrl = await readFileAsBase64(photoFile);
-                } catch (e) {
-                    alert('Erro ao ler arquivo da foto.');
-                    return;
-                }
-            }
-
-            const newData = {
-                title: document.getElementById('hero-title-input').value,
-                subtitle: document.getElementById('hero-subtitle-input').value,
-                photoUrl: photoUrl
-            };
-            localStorage.setItem('portfolio_hero', JSON.stringify(newData));
-            alert('Hero section atualizado!');
-        });
-
-        // --- PROJECTS ---
-        function renderAdminProjects() {
-            const projects = JSON.parse(localStorage.getItem('portfolio_projects')) || [];
-            const listEl = document.getElementById('admin-projects-list');
-
-            listEl.innerHTML = projects.map((p, index) => `
-                <div class="project-list-item">
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                        <div>
-                            <strong>${p.title}</strong>
-                            <p style="font-size: 0.8rem; color: #aaa;">${p.desc ? p.desc.substring(0, 50) + '...' : ''}</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="delete-btn" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;" onclick="window.editProject(${index})">
-                            <i class="ph ph-pencil"></i>
-                        </button>
-                        <button class="delete-btn" onclick="window.deleteProject(${index})">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Helper to create delete button for images
+        // Helper para criar miniaturas no formulário
         const createImgThumb = (src, containerId) => {
             const div = document.createElement('div');
-            div.style.position = 'relative';
-            div.style.width = '60px';
-            div.style.height = '60px';
-
-            const img = document.createElement('img');
-            img.src = src;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '4px';
-            img.style.border = '1px solid #555';
-
-            const btn = document.createElement('button');
-            btn.innerHTML = '&times;';
-            btn.style.position = 'absolute';
-            btn.style.top = '-5px';
-            btn.style.right = '-5px';
-            btn.style.background = '#ff4444';
-            btn.style.color = 'white';
-            btn.style.border = 'none';
-            btn.style.borderRadius = '50%';
-            btn.style.width = '18px';
-            btn.style.height = '18px';
-            btn.style.cursor = 'pointer';
-            btn.style.fontSize = '12px';
-            btn.style.lineHeight = '1';
-
-            btn.onclick = (e) => {
-                e.preventDefault(); // Prevent form submit
-                div.remove();
-            };
-
-            div.appendChild(img);
-            div.appendChild(btn);
+            div.className = 'thumb-wrapper';
+            div.style = 'position: relative; width: 60px; height: 60px;';
+            div.innerHTML = `
+                <img src="${src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #555;">
+                <button onclick="this.parentElement.remove()" style="position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">&times;</button>
+            `;
             document.getElementById(containerId).appendChild(div);
         };
 
-        // Edit Project Mode
+        // Editar Projeto
         window.editProject = (index) => {
-            const projects = JSON.parse(localStorage.getItem('portfolio_projects')) || [];
-            const p = projects[index];
+            const p = window.adminProjects[index];
             if (!p) return;
 
-            // Scroll to form
             document.getElementById('project-form-title').scrollIntoView({ behavior: 'smooth' });
-
-            // Set Form Data
-            document.getElementById('editing-project-id').value = index;
+            document.getElementById('editing-project-id').value = p.id;
             document.getElementById('project-form-title').innerText = `Editando: ${p.title}`;
             document.getElementById('submit-project-btn').innerText = "Salvar Alterações";
             document.getElementById('cancel-edit-btn').style.display = 'inline-block';
 
             document.getElementById('proj-title').value = p.title;
-            document.getElementById('proj-desc').value = p.desc;
+            document.getElementById('proj-desc').value = p.description;
             document.getElementById('proj-specs').value = p.specs;
-            document.getElementById('proj-link').value = p.linkProject || '';
-            document.getElementById('proj-figma').value = p.linkFigma || '';
+            document.getElementById('proj-link').value = p.link_project || '';
+            document.getElementById('proj-figma').value = p.link_figma || '';
 
-            // Show Current Cover
+            // Capa Atual
             const coverContainer = document.getElementById('current-cover-container');
-            const coverImg = document.getElementById('current-cover-img');
-            if (p.image) {
+            if (p.image_url) {
                 coverContainer.style.display = 'block';
-                coverImg.src = p.image;
-            } else {
-                coverContainer.style.display = 'none';
+                document.getElementById('current-cover-img').src = p.image_url;
             }
 
-            // Show Current Galleries
-            const galleryContainer = document.getElementById('current-gallery-container');
-            galleryContainer.innerHTML = '';
-            if (p.gallery && p.gallery.length > 0) {
-                p.gallery.forEach(src => createImgThumb(src, 'current-gallery-container'));
-            }
+            // Galerias Atuais
+            const galleryCont = document.getElementById('current-gallery-container');
+            galleryCont.innerHTML = '';
+            if (p.gallery) p.gallery.forEach(url => createImgThumb(url, 'current-gallery-container'));
 
-            const figmaContainer = document.getElementById('current-figma-container');
-            figmaContainer.innerHTML = '';
-            if (p.galleryFigma && p.galleryFigma.length > 0) {
-                p.galleryFigma.forEach(src => createImgThumb(src, 'current-figma-container'));
-            }
+            const figmaCont = document.getElementById('current-figma-container');
+            figmaCont.innerHTML = '';
+            if (p.gallery_figma) p.gallery_figma.forEach(url => createImgThumb(url, 'current-figma-container'));
         };
 
-        // Cancel Edit
-        document.getElementById('cancel-edit-btn').addEventListener('click', resetProjectForm);
-
-        function resetProjectForm() {
+        const resetProjectForm = () => {
             document.getElementById('add-project-form').reset();
             document.getElementById('editing-project-id').value = '';
             document.getElementById('project-form-title').innerText = 'Adicionar Novo Projeto';
             document.getElementById('submit-project-btn').innerText = 'Adicionar Projeto';
             document.getElementById('cancel-edit-btn').style.display = 'none';
-
-            // Clear thumbs
             document.getElementById('current-cover-container').style.display = 'none';
             document.getElementById('current-gallery-container').innerHTML = '';
             document.getElementById('current-figma-container').innerHTML = '';
-        }
+        };
 
-        // Add/update Project
+        document.getElementById('cancel-edit-btn').addEventListener('click', resetProjectForm);
+
+        // Submit Form (Novo ou Edit)
         document.getElementById('add-project-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-project-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "Processando...";
             btn.disabled = true;
+            btn.innerText = "Enviando para o Banco...";
 
             try {
-                const projects = JSON.parse(localStorage.getItem('portfolio_projects')) || [];
-                const editIndex = document.getElementById('editing-project-id').value;
-                const isEdit = editIndex !== '';
+                const id = document.getElementById('editing-project-id').value;
+                const isEdit = id !== '';
 
-                // Read NEW Cover Image
+                // 1. Upload da Capa (se houver novo arquivo)
                 const coverFile = document.getElementById('proj-img-file').files[0];
-                let coverBase64 = null;
+                let imageUrl = isEdit ? document.getElementById('current-cover-img').src : null;
+
                 if (coverFile) {
-                    coverBase64 = await readFileAsBase64(coverFile);
+                    imageUrl = await window.uploadFile(coverFile, 'covers');
                 }
 
-                // Read NEW Gallery Images
+                if (!imageUrl) throw new Error("A imagem de capa é obrigatória.");
+
+                // 2. Upload da Galeria (se houver novos arquivos)
                 const galleryFiles = document.getElementById('proj-gallery-files').files;
-                let newGalleryUrls = [];
-                if (galleryFiles.length > 0) {
-                    for (let i = 0; i < galleryFiles.length; i++) {
-                        newGalleryUrls.push(await readFileAsBase64(galleryFiles[i]));
-                    }
+                const newGalleryUrls = [];
+                for (let file of galleryFiles) {
+                    newGalleryUrls.push(await window.uploadFile(file, 'gallery'));
                 }
 
-                // Read NEW Figma Gallery
+                const existingGallery = Array.from(document.querySelectorAll('#current-gallery-container img')).map(img => img.src);
+                const finalGallery = [...existingGallery, ...newGalleryUrls];
+
+                // 3. Upload da Galeria Figma
                 const figmaFiles = document.getElementById('proj-figma-files').files;
-                let newFigmaUrls = [];
-                if (figmaFiles.length > 0) {
-                    for (let i = 0; i < figmaFiles.length; i++) {
-                        newFigmaUrls.push(await readFileAsBase64(figmaFiles[i]));
-                    }
+                const newFigmaUrls = [];
+                for (let file of figmaFiles) {
+                    newFigmaUrls.push(await window.uploadFile(file, 'figma'));
                 }
 
-                // Determine Final Images (Merge Old + New)
-                let finalImage = coverBase64;
-                let finalGallery = newGalleryUrls;
-                let finalFigma = newFigmaUrls;
+                const existingFigma = Array.from(document.querySelectorAll('#current-figma-container img')).map(img => img.src);
+                const finalFigma = [...existingFigma, ...newFigmaUrls];
 
-                if (isEdit) {
-                    // Start with what is remaining in the DOM (what user didn't delete)
-
-                    // Cover: If user uploaded new, use new. If not, use what is in DOM (old).
-                    if (!coverBase64) {
-                        const oldCoverImg = document.getElementById('current-cover-img');
-                        if (oldCoverImg && document.getElementById('current-cover-container').style.display !== 'none') {
-                            finalImage = oldCoverImg.src;
-                        }
-                    }
-
-                    // Gallery: Get all existing src from DOM + new uploads
-                    const existingGallery = [];
-                    document.querySelectorAll('#current-gallery-container img').forEach(img => existingGallery.push(img.src));
-                    finalGallery = [...existingGallery, ...newGalleryUrls];
-
-                    // Figma: Get all existing src from DOM + new uploads
-                    const existingFigma = [];
-                    document.querySelectorAll('#current-figma-container img').forEach(img => existingFigma.push(img.src));
-                    finalFigma = [...existingFigma, ...newFigmaUrls];
-                } else {
-                    // New Project
-                    if (!finalImage) throw new Error('Escolha uma imagem de capa.');
-                }
-
+                // 4. Salvar no Banco
                 const projectData = {
                     title: document.getElementById('proj-title').value,
-                    desc: document.getElementById('proj-desc').value,
+                    description: document.getElementById('proj-desc').value,
                     specs: document.getElementById('proj-specs').value,
-                    linkProject: document.getElementById('proj-link').value,
-                    linkFigma: document.getElementById('proj-figma').value,
-                    image: finalImage,
+                    link_project: document.getElementById('proj-link').value,
+                    link_figma: document.getElementById('proj-figma').value,
+                    image_url: imageUrl,
                     gallery: finalGallery,
-                    galleryFigma: finalFigma
+                    gallery_figma: finalFigma
                 };
 
+                let res;
                 if (isEdit) {
-                    projectData.id = projects[editIndex].id; // Keep ID
-                    projects[editIndex] = projectData;
-                    alert('Projeto atualizado!');
+                    res = await window.supabaseClient.from('projects').update(projectData).eq('id', id);
                 } else {
-                    projectData.id = Date.now();
-                    projects.push(projectData);
-                    alert('Projeto criado!');
+                    res = await window.supabaseClient.from('projects').insert([projectData]);
                 }
 
-                localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+                if (res.error) throw res.error;
+
+                alert(isEdit ? 'Projeto atualizado!' : 'Projeto criado!');
                 resetProjectForm();
-                renderAdminProjects();
+                window.renderAdminProjects();
 
             } catch (err) {
                 console.error(err);
-                alert(err.message || 'Erro ao salvar projeto.');
+                alert('Erro ao salvar: ' + err.message);
             } finally {
-                btn.innerText = originalText;
                 btn.disabled = false;
+                btn.innerText = isEdit ? "Salvar Alterações" : "Adicionar Projeto";
             }
         });
 
-        // Delete Project
-        window.deleteProject = (index) => {
-            if (confirm('Tem certeza que deseja remover este projeto?')) {
-                const projects = JSON.parse(localStorage.getItem('portfolio_projects'));
-                projects.splice(index, 1);
-                localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-                renderAdminProjects();
-            }
-        };
-
-        renderAdminProjects();
+        // Inicializar lista
+        window.renderAdminProjects();
     </script>
 </body>
 

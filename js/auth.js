@@ -1,40 +1,34 @@
-const DEFAULT_USER = "admin";
-const DEFAULT_PASS = "123456";
-
 window.Auth = {
-    getCreds: function() {
-        const creds = localStorage.getItem('portfolio_creds');
-        if (creds) return JSON.parse(creds);
-        
-        const defaults = { user: DEFAULT_USER, pass: DEFAULT_PASS };
-        localStorage.setItem('portfolio_creds', JSON.stringify(defaults));
-        return defaults;
-    },
+    // Faz login usando Supabase Auth
+    login: async function (email, password) {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
 
-    login: function(username, password) {
-        const creds = this.getCreds();
-        if (username === creds.user && password === creds.pass) {
-            localStorage.setItem('portfolio_auth', 'true');
-            return true;
+        if (error) {
+            console.error('Erro no login:', error.message);
+            return false;
         }
-        return false;
+
+        // Sessão é salva automaticamente no browser pelo SDK
+        localStorage.setItem('portfolio_auth', 'true'); // Mantemos para compatibilidade rápida
+        return true;
     },
 
-    logout: function() {
+    // Faz logout
+    logout: async function () {
+        await window.supabaseClient.auth.signOut();
         localStorage.removeItem('portfolio_auth');
         window.location.href = 'index.html';
     },
 
-    checkAuth: function() {
-        if (!localStorage.getItem('portfolio_auth')) {
+    // Verifica se o usuário está logado
+    checkAuth: async function () {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+        if (!session) {
             window.location.href = 'login.html';
         }
-    },
-
-    changePassword: function(newPass) {
-        const creds = this.getCreds();
-        creds.pass = newPass;
-        localStorage.setItem('portfolio_creds', JSON.stringify(creds));
-        return true;
     }
 };
