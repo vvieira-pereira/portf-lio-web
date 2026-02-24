@@ -799,11 +799,37 @@ nav {
     }
 
     .hero-photo {
-        width: 280px;
-        height: 280px;
+        width: 250px;
+        height: 250px;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
+        /* Reduzindo um pouco mais */
+        word-break: break-word;
+        /* Para nomes longos */
+    }
+
+    .typing-effect {
+        white-space: normal;
+        /* Permite quebrar linha no mobile para não dar zoom/scroll lateral */
+        border-right: none;
+        /* Remove o cursor se quebrar linha fica estranho */
+        animation: none;
+    }
+
+    /* Ajuste para telas muito estreitas (tipo Galaxy M14 / iPhone SE) */
+    @media (max-width: 400px) {
+        .hero-title {
+            font-size: 1.8rem;
+        }
+
+        .container {
+            padding: 0 15px;
+        }
+
+        .section {
+            padding: 60px 15px;
+        }
     }
 }

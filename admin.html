@@ -293,12 +293,30 @@
                 const heroData = {
                     title: document.getElementById('hero-title-input').value,
                     subtitle: document.getElementById('hero-subtitle-input').value,
-                    photoUrl: photoUrl
+                    photo_url: photoUrl
                 };
 
-                localStorage.setItem('portfolio_hero', JSON.stringify(heroData));
+                // 2. Salva no Supabase (Banco de Dados)
+                if (window.supabaseClient) {
+                    const { error } = await window.supabaseClient
+                        .from('hero_section')
+                        .upsert([{ id: 1, ...heroData }]); // Sempre ID 1 para manter um único registro
+
+                    if (error) {
+                        console.error("Erro Supabase Hero:", error);
+                        throw new Error("Erro ao salvar no banco: " + error.message);
+                    }
+                }
+
+                // 3. Atualiza Cache Local
+                localStorage.setItem('portfolio_hero', JSON.stringify({
+                    title: heroData.title,
+                    subtitle: heroData.subtitle,
+                    photoUrl: photoUrl
+                }));
+
                 document.getElementById('hero-photo-url').value = photoUrl;
-                alert('Hero Section atualizado com sucesso!');
+                alert('Hero Section atualizado com sucesso no banco e localmente!');
             } catch (error) {
                 console.error("Erro no Hero:", error);
                 alert("Erro ao salvar Hero: " + error.message);
