@@ -200,10 +200,14 @@ nav {
         position: fixed;
         top: 0;
         right: -100%;
-        width: 100%;
+        width: 80%;
+        /* Não ocupa mais 100%, fica mais elegante */
         height: 100vh;
-        background: rgba(5, 5, 5, 0.98);
+        background: rgba(5, 5, 5, 0.95);
         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex;
+        /* Garante que o flex esteja ativo */
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -218,11 +222,14 @@ nav {
     }
 
     .nav-links li {
-        font-size: 1.8rem;
-        margin: 20px 0;
+        font-size: 1.4rem;
+        /* Menor e mais suave */
+        font-weight: 500;
+        margin: 15px 0;
         opacity: 0;
         transform: translateY(20px);
         transition: 0.4s ease;
+        letter-spacing: 1px;
     }
 
     .nav-links.active li {

@@ -45,8 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHero();
     loadProjects();
     setupModal();
-    setupMobileMenu();
     setupLightbox();
+
+    // Menu Hamburguer com delegação para garantir funcionamento
+    setupMobileMenu();
 });
 
 function loadTexts() {
@@ -93,15 +95,41 @@ function setupMobileMenu() {
     }
 }
 
-function loadHero() {
+async function loadHero() {
+    // 1. Tenta carregar do LocalStorage primeiro (Rápido)
     const heroData = JSON.parse(localStorage.getItem('portfolio_hero')) || {};
     const titleEl = document.getElementById('editable-hero-title');
     const subtitleEl = document.getElementById('editable-hero-subtitle');
     const photoEl = document.getElementById('editable-hero-photo');
 
-    if (titleEl) titleEl.innerHTML = heroData.title;
-    if (subtitleEl) subtitleEl.innerText = heroData.subtitle;
+    if (titleEl && heroData.title) titleEl.innerHTML = heroData.title;
+    if (subtitleEl && heroData.subtitle) subtitleEl.innerText = heroData.subtitle;
     if (photoEl && heroData.photoUrl) photoEl.src = heroData.photoUrl;
+
+    // 2. Busca do Supabase para garantir dados atualizados (Sempre)
+    if (window.supabaseClient) {
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('hero_section')
+                .select('*')
+                .limit(1)
+                .single();
+
+            if (data && !error) {
+                if (titleEl) titleEl.innerHTML = data.title;
+                if (subtitleEl) subtitleEl.innerText = data.subtitle;
+                if (photoEl && data.photo_url) photoEl.src = data.photo_url;
+                // Atualiza cache local
+                localStorage.setItem('portfolio_hero', JSON.stringify({
+                    title: data.title,
+                    subtitle: data.subtitle,
+                    photoUrl: data.photo_url
+                }));
+            }
+        } catch (e) {
+            console.warn("Hero: Supabase table not found yet or connection error.");
+        }
+    }
 }
 
 async function loadProjects() {
