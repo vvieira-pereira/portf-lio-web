@@ -96,38 +96,49 @@ function setupMobileMenu() {
 }
 
 async function loadHero() {
-    // 1. Tenta carregar do LocalStorage primeiro (Rápido)
-    const heroData = JSON.parse(localStorage.getItem('portfolio_hero')) || {};
     const titleEl = document.getElementById('editable-hero-title');
     const subtitleEl = document.getElementById('editable-hero-subtitle');
     const photoEl = document.getElementById('editable-hero-photo');
 
-    if (titleEl && heroData.title) titleEl.innerHTML = heroData.title;
-    if (subtitleEl && heroData.subtitle) subtitleEl.innerText = heroData.subtitle;
-    if (photoEl && heroData.photoUrl) photoEl.src = heroData.photoUrl;
+    // 1. Dados Padrão (Fallback)
+    const defaultHero = {
+        title: 'Transformando ideias em <br> <span class="gradient-text typing-effect">Experiências Digitais</span>',
+        subtitle: 'Olá, sou Vinicius Vieira. Desenvolvedor apaixonado por criar soluções web modernas e impactantes.',
+        photoUrl: 'https://placehold.co/400x400/222/FFF?text=Foto+Vinicius'
+    };
 
-    // 2. Busca do Supabase para garantir dados atualizados (Sempre)
+    // 2. Tenta carregar do LocalStorage (Cache)
+    const cachedHero = JSON.parse(localStorage.getItem('portfolio_hero')) || defaultHero;
+
+    // Renderiza o que tiver (Padrão ou Cache)
+    if (titleEl) titleEl.innerHTML = cachedHero.title || defaultHero.title;
+    if (subtitleEl) subtitleEl.innerText = cachedHero.subtitle || defaultHero.subtitle;
+    if (photoEl) photoEl.src = cachedHero.photoUrl || defaultHero.photoUrl;
+
+    // 3. Busca do Supabase (Sincronização em tempo real)
     if (window.supabaseClient) {
         try {
             const { data, error } = await window.supabaseClient
                 .from('hero_section')
                 .select('*')
-                .limit(1)
+                .eq('id', 1)
                 .single();
 
             if (data && !error) {
-                if (titleEl) titleEl.innerHTML = data.title;
-                if (subtitleEl) subtitleEl.innerText = data.subtitle;
-                if (photoEl && data.photo_url) photoEl.src = data.photo_url;
-                // Atualiza cache local
+                // Só atualiza se houver conteúdo real no banco
+                if (data.title && titleEl) titleEl.innerHTML = data.title;
+                if (data.subtitle && subtitleEl) subtitleEl.innerText = data.subtitle;
+                if (data.photo_url && photoEl) photoEl.src = data.photo_url;
+
+                // Atualiza o cache para a próxima visita ser rápida
                 localStorage.setItem('portfolio_hero', JSON.stringify({
-                    title: data.title,
-                    subtitle: data.subtitle,
-                    photoUrl: data.photo_url
+                    title: data.title || cachedHero.title,
+                    subtitle: data.subtitle || cachedHero.subtitle,
+                    photoUrl: data.photo_url || cachedHero.photoUrl
                 }));
             }
         } catch (e) {
-            console.warn("Hero: Supabase table not found yet or connection error.");
+            console.warn("Hero: Falha ao sincronizar com Supabase, usando local.");
         }
     }
 }
