@@ -406,79 +406,74 @@ nav {
     width: 60%;
     height: 150px;
     object-fit: contain;
-    border-radius: 15px;
-    /* Voltando para um arredondamento suave que não corta */
+    border-radius: 30px;
+    /* Bordas bem mais arredondadas como pedido */
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
     z-index: 3;
+    pointer-events: none;
+    /* Evita interferir no clique do card */
 }
 
 .project-image-container {
-    height: 180px;
+    height: 190px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    background: #0a0a0c;
+    background: #08080a;
 }
 
-/* Restauro da Grade Diagonal que você gostou */
+/* Grade Diagonal Real (Inclinada 45 graus) */
 .project-image-container::before {
     content: '';
     position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
+    width: 300%;
+    height: 300%;
+    top: -100%;
+    left: -100%;
     background-image:
-        linear-gradient(rgba(79, 70, 229, 0.15) 1.5px, transparent 1.5px),
-        linear-gradient(90deg, rgba(79, 70, 229, 0.15) 1.5px, transparent 1.5px);
-    background-size: 40px 40px;
-    transform: perspective(600px) rotateX(60deg);
-    /* Perspectiva forte diagonal */
-    animation: gridMove 15s linear infinite;
+        linear-gradient(rgba(79, 70, 229, 0.2) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.2) 1.5px, transparent 1.5px);
+    background-size: 50px 50px;
+    /* Aqui está o segredo: perspectiva + rotação X e Z para a diagonal tech */
+    transform: perspective(1000px) rotateX(60deg) rotateZ(45deg);
+    animation: gridMoveTech 20s linear infinite;
     z-index: 1;
+    opacity: 0.6;
 }
 
-/* Efeito de Vidro Sutil apenas para destacar a imagem */
+/* Brilho de Fundo Dinâmico */
 .project-image-container::after {
     content: '';
     position: absolute;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.1) 0%, transparent 80%);
-    backdrop-filter: blur(2px);
-    /* Blur bem leve para não estragar */
+    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
     z-index: 2;
+    transition: opacity 0.3s;
 }
 
-@keyframes gridMove {
+@keyframes gridMoveTech {
     0% {
-        transform: perspective(600px) rotateX(60deg) translateY(0);
+        transform: perspective(1000px) rotateX(60deg) rotateZ(45deg) translateY(0);
     }
 
     100% {
-        transform: perspective(600px) rotateX(60deg) translateY(40px);
+        transform: perspective(1000px) rotateX(60deg) rotateZ(45deg) translateY(50px);
     }
 }
 
-@keyframes pulseGlow {
-
-    0%,
-    100% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-}
-
+/* HOVER COM COR E BRILHO */
 .project-card:hover .project-image {
-    transform: scale(1.1) translateY(-5px);
+    transform: scale(1.15) translateY(-5px);
+    filter: drop-shadow(0 0 20px rgba(79, 70, 229, 0.6));
+    /* Brilho azul no hover */
+}
+
+.project-card:hover .project-image-container::after {
+    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
 }
 
 .project-info {
