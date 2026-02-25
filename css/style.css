@@ -400,74 +400,58 @@ nav {
     line-height: 1.6;
 }
 
-/* Infinity Marquee Section */
-.marquee-section {
+/* Metrics Bar Section */
+.metrics-section {
     width: 100%;
-    padding: 30px 0;
-    background: rgba(255, 255, 255, 0.02);
-    border-top: var(--glass-border);
-    border-bottom: var(--glass-border);
-    overflow: hidden;
-    position: relative;
-    margin-top: -50px;
-    /* Puxa um pouco para cima para integrar com o Hero */
+    padding: 40px 0;
+    margin-top: -20px;
     z-index: 10;
+    position: relative;
 }
 
-.marquee-content {
-    display: flex;
-    gap: 50px;
-    animation: scroll-marquee 40s linear infinite;
-    width: max-content;
+.metrics-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
 }
 
-.marquee-item {
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    white-space: nowrap;
+.metric-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: var(--glass-border);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    transition: var(--transition-fast);
 }
 
-.marquee-item::after {
-    content: '•';
+.metric-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+}
+
+.metric-card i {
+    font-size: 2rem;
     color: var(--accent-primary);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.metric-card h3 {
     font-size: 1.5rem;
+    margin-bottom: 5px;
 }
 
-@keyframes scroll-marquee {
-    0% {
-        transform: translateX(0);
+.metric-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .metrics-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
-
-    100% {
-        transform: translateX(calc(-50% - 25px));
-    }
-}
-
-.marquee-section::before,
-.marquee-section::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 150px;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.marquee-section::before {
-    left: 0;
-    background: linear-gradient(to right, var(--bg-color), transparent);
-}
-
-.marquee-section::after {
-    right: 0;
-    background: linear-gradient(to left, var(--bg-color), transparent);
 }
 
 /* Projects Grid */
